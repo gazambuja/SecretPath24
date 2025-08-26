@@ -8,9 +8,10 @@ import { AnimatedCounter } from "react-animated-counter";
 import { AES, enc, MD5 } from "crypto-js";
 import LoginDialogue from "./components/LoginDialogue";
 import CustomAudioPlayer from "./components/CustomAudioPlayer";
+import { useParams } from 'react-router-dom'; // Import useParams
 
 const baseURL =
-  "https://scarlettbot-api.azurewebsites.net/scarlett?endpoint=secretPath&code=5cHCdyevhBV7FA3LRNQ8QdYXexGw3Cw5BgWsUsKc8R18cG&route=";
+  "https://scarlett-endpoint-hscrfzene3bgawcb.eastus-01.azurewebsites.net/secretpath?route=";
 
 function App() {
   let cookies = decodeURIComponent(document.cookie).split("|");
@@ -43,6 +44,10 @@ function App() {
   const validEmail = new RegExp(
     "^[a-zA-Z0-9._:$!%-]+@[a-zA-Z0-9.-]+.[a-zA-Z]$"
   );
+
+  // const [searchParams, setSearchParams] = useSearchParams(); // Get search parameters
+  // const lang = searchParams.get('lang') || 'en'; // Get language from URL, default to 'en'
+  const { lang } = useParams(); // Get language from URL parameter
 
   function handleContinueClick() {
     modalRef.current?.showModal();
@@ -100,6 +105,7 @@ function App() {
       index: 0,
       hash: cipherText.toString() /* userPerficientMail.trim() + userAgent.trim() */,
       perficientEmail: userPerficientMail.trim(),
+      lang: lang
     };
 
     //regex email
@@ -120,7 +126,7 @@ function App() {
           .then((response) => {
             let currentQuestion = response.data.currentQuestion;
 
-            if (currentQuestion.toLowerCase().includes("deja tu feedback")) {
+            if (!currentQuestion || currentQuestion.toLowerCase().includes("deja tu feedback")) {
               setShowNextQuestion(false);
               setShowCursorState(false);
             } else {
@@ -167,10 +173,10 @@ function App() {
     const cipherText = MD5(userPerficientMail.trim() + userAgent.trim(), "OZ");
     let answerObjectToPost = {
       id: currentIndex,
-
       perficientEmail: userPerficientMail,
       hash: cipherText.toString(),
       answer: answerValue.toUpperCase().trim(),
+      lang: lang
     };
 
     setModalOpen("answer");
